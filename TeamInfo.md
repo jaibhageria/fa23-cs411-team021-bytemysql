@@ -5,7 +5,7 @@
 |   Info      |        Description     |
 | ----------- | ---------------------- |
 | TeamID      |        Team-021        |
-| TeamName    |        bytemysql       |
+| TeamName    |        ByteMySQL       |
 | Captain     |       Jai Agarwal      |
 | Captain     |    jaia4@illinois.edu  |
 | Member1     |     Rahul Kumar VH     |
