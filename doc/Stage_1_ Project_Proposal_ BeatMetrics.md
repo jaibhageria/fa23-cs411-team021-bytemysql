@@ -1,5 +1,5 @@
 # Stage 1: Project Proposal: BeatMetrics
-> Project Description for Team021 bytemysql
+> Project Description for Team021 ByteMySQL
 
 ## :memo: Project Title: BeatMetrics
 
@@ -55,16 +55,16 @@ For premium users, there will be an attribute in the user table which will show 
 We will store the data in the following tables:
 1. User table: all login and song preference information
 	```sql
-    user_id INT,
-	name VARCHAR(255),
-    	password VARCHAR(255),
-    	email VARCHAR(255),
-         activity_id INT,
-         Premium BOOLEAN
+        user_id INT,
+        name VARCHAR(255),
+        password VARCHAR(255),
+        email VARCHAR(255),
+        activity_id INT,
+        Premium BOOLEAN
     ```
 
 2. Song information table: all song information such as title, artist, length, year released, genre tags
-      ```sql
+    ```sql
         song_id INT,
         song_title VARCHAR(255),
         artist_id INT,
@@ -78,49 +78,49 @@ We will store the data in the following tables:
 
 
 3. Artists Table: This table stores information about artists. It can include columns like:
-```sql
-artist_id  INT,
-artist_name VARCHAR(255),
-song_id INT,
-genre VARCHAR(255),
-country VARCHAR(255),
-Streams  INT
-```
+    ```sql
+        artist_id  INT,
+        artist_name VARCHAR(255),
+        song_id INT,
+        genre VARCHAR(255),
+        country VARCHAR(255),
+        Streams  INT
+    ```
 
 4. Listening activity table: user id along with each song the user has listened to and the number of times it was listened to
 	```sql
-    activity_id INT,
-	song_id INT,
-    	user_id INT,
-    	number_of_times_listened INT
+        activity_id INT,
+        song_id INT,
+        user_id INT,
+        number_of_times_listened INT
     ```
 
 5. user Preferences Table: This table stores information about users' preferences and filters. It can include columns like:
-```sql
-user_id  INT, 
-preferred_mood VARCHAR(255),
-preferred_theme VARCHAR(255),
-preferred_artist VARCHAR(255),
-preferred_genres VARCHAR(255),
-disliked_theme VARCHAR(255),
-disliked_artist VARCHAR(255),
-disliked_genres VARCHAR(255),
-disliked_mood VARCHAR(255),
-max_streams INT
-```
+    ```sql
+        user_id  INT, 
+        preferred_mood VARCHAR(255),
+        preferred_theme VARCHAR(255),
+        preferred_artist VARCHAR(255),
+        preferred_genres VARCHAR(255),
+        disliked_theme VARCHAR(255),
+        disliked_artist VARCHAR(255),
+        disliked_genres VARCHAR(255),
+        disliked_mood VARCHAR(255),
+        max_streams INT
+    ```
 
 
 6. Playlist table: apart from the song ids in the playlist each playlist will be associated with a creator user and collaborator users for convenience in accessing during dashboard display
 	```sql
-    playlist_id INT,
-   	 song_id INT,
-         artist_id INT
-   	 creator_id INT,
-    	collaborator_id INT
+        playlist_id INT,
+        song_id INT,
+        artist_id INT
+        creator_id INT,
+        collaborator_id INT
     ```
 
 
-### UI Mockup of BeatMetrics
+## UI Mockup of BeatMetrics
 
 #### Intro Page
 <img width="845" alt="Into Page" src="https://github.com/rahulkumarvh/MDBA-App/assets/66205950/f349a0f6-0a6e-426e-9431-9d426a26d8c3">
@@ -161,8 +161,7 @@ max_streams INT
 #### Library (Top Mood)
 ![IMG_0166](https://github.com/rahulkumarvh/MDBA-App/assets/66205950/4bbb7aae-3aa1-4af9-bebe-66bb7d6afaee)
 
-### Project Distribution
-
+## Project Distribution
 #### Database Management (Backend): 
 Implement and manage the database operations based on API requests. This includes handling user preferences, song data, and user interactions like likes and dislikes.
 > Responsibility: Rahul (rkv7), Jai (jaia4)
