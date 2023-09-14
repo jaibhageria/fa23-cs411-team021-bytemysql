@@ -44,4 +44,32 @@
 #### Library (Top Mood)
 ![IMG_0166](https://github.com/rahulkumarvh/MDBA-App/assets/66205950/4bbb7aae-3aa1-4af9-bebe-66bb7d6afaee)
 
+### Project Distribution
+
+#### Database Management (Backend): 
+Implement and manage the database operations based on API requests. This includes handling user preferences, song data, and user interactions like likes and dislikes.
+> Responsibility: Rahul (rkv7), Jai (jaia4)
+#### Test Data Generation (Backend):
+Automatic generate data in the database.
+> Responsibility: Mitali (mnm11), Khushi (ksidana2)
+#### System Control Flow (Backend):
+Implement system-level control flow, including authentication, authorization, and access control. Ensure that user interactions are secure and follow proper access protocols.
+> Responsibility: Khushi (ksidana2), Jai (jaia4)
+#### Backend API Development:
+Create and maintain the backend API. This includes handling requests from the frontend, processing user actions (e.g., likes, dislikes), and generating recommendations based on user preferences.
+> Responsibility: Rahul (rkv7), Mitali (mnm11)
+#### Frontend UI Design:
+Design the user interface (UI) for the web app. Create visually appealing and user-friendly screens for song selection, swiping, and interacting with the recommender system.
+> Responsibility: Rahul (rkv7), Khushi (ksidana2)
+#### Frontend-Backend Integration:
+Design the user interface (UI) for the web app. Create visually appealing and user-friendly screens for song selection, swiping, and interacting with the recommender system.
+> Responsibility: Jai (jaia4), Mitali (mnm11)
+#### Recommender System Development (Backend):
+Build the recommender system that analyzes user likes and dislikes to suggest songs and artists. This involves data analysis and machine learning components.
+> Responsibility: Jai (jaia4), Rahul (rkv7), Mitali (mnm11), Khushi (ksidana2)
+#### Dashboard Development (Frontend):
+Design the user interface (UI) for the web app. Create visually appealing and user-friendly screens for song selection, swiping, and interacting with the recommender system.
+> Responsibility: Rahul (rkv7), Khushi (ksidana2), Mitali (mnm11)
+
+
 
