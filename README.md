@@ -1,6 +1,6 @@
-# Team021-SampleProject
+# Team021-ByteMySQL
 
-## Project Title
+## BeatMetrics
 
 ## Project Links
 
