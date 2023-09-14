@@ -54,40 +54,49 @@ For premium users, there will be an attribute in the user table which will show 
 ## Database description
 We will store the data in the following tables:
 1. User table: all login and song preference information
-	user_id INT,
+	```sql
+    user_id INT,
 	name VARCHAR(255),
     	password VARCHAR(255),
     	email VARCHAR(255),
          activity_id INT,
          Premium BOOLEAN
+    ```
 
 2. Song information table: all song information such as title, artist, length, year released, genre tags
-      song_id INT,
-song_title VARCHAR(255),
-artist_id INT,
-album_id INT,
-release_date DATE,
-genre VARCHAR(255),
-mood VARCHAR(255),
-number_of_streams INT,
-country VARCHAR(255),
+      ```sql
+        song_id INT,
+        song_title VARCHAR(255),
+        artist_id INT,
+        album_id INT,
+        release_date DATE,
+        genre VARCHAR(255),
+        mood VARCHAR(255),
+        number_of_streams INT,
+        country VARCHAR(255),
+    ```
 
 
 3. Artists Table: This table stores information about artists. It can include columns like:
+```sql
 artist_id  INT,
 artist_name VARCHAR(255),
 song_id INT,
 genre VARCHAR(255),
 country VARCHAR(255),
 Streams  INT
+```
 
 4. Listening activity table: user id along with each song the user has listened to and the number of times it was listened to
-	activity_id INT,
+	```sql
+    activity_id INT,
 	song_id INT,
     	user_id INT,
     	number_of_times_listened INT
+    ```
 
 5. user Preferences Table: This table stores information about users' preferences and filters. It can include columns like:
+```sql
 user_id  INT, 
 preferred_mood VARCHAR(255),
 preferred_theme VARCHAR(255),
@@ -98,14 +107,17 @@ disliked_artist VARCHAR(255),
 disliked_genres VARCHAR(255),
 disliked_mood VARCHAR(255),
 max_streams INT
+```
 
 
 6. Playlist table: apart from the song ids in the playlist each playlist will be associated with a creator user and collaborator users for convenience in accessing during dashboard display
-	playlist_id INT,
+	```sql
+    playlist_id INT,
    	 song_id INT,
          artist_id INT
    	 creator_id INT,
     	collaborator_id INT
+    ```
 
 
 ### UI Mockup of BeatMetrics
