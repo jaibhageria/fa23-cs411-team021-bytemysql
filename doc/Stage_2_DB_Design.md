@@ -319,3 +319,11 @@ playlist_collaborators(
     user_id VARCHAR(255) [PK] [FK to user.user_id]
 )
 ```
+
+**12. listens**
+```
+listens(
+    user_id VARCHAR(255) [PK] [FK to user.user_id]
+    song_id INT [PK] [FK to song.song_id]
+)
+```
