@@ -298,7 +298,7 @@ After this we added index on song_id for this query:
 ```mysql
 CREATE INDEX idx_listens_song_id ON Listens(song_id);
 ```
-![indexing](images/Query1_Indexing_Song.jpeg)
+![indexing](images/Query1_Index_Song.jpeg)
 
 Before Indexing:
 The original EXPLAIN ANALYZE output portrayed various execution steps such as table scans, nested loop joins, and filtering, accompanied by their respective cost, actual time, and row estimates.
@@ -377,7 +377,7 @@ CREATE INDEX idx_song_artist ON Song(artist_id);
 ```
 
 After applying the index, the following output was obtained after running EXPLAIN ANALYZE:
-![indexing](images/Query2_Indexing_SongArtist.jpeg)
+![indexing](images/Query2_Index_SongArtist.jpeg)
 
 After this we added index on song_id of Listens table for this query:
 ```mysql
@@ -385,7 +385,7 @@ CREATE INDEX idx_listens_song ON Listens(song_id);
 ```
 
 After applying the index, the following output was obtained after running EXPLAIN ANALYZE:
-![indexing](images/Query2_Indexing_SongListens.jpeg)
+![indexing](images/Query2_Index_SongListens.jpeg)
 
 Original Query Execution Overview:
 The original query involved complex joins across multiple tables: Artist, Song, and Listens, resulting in a considerable execution cost due to table scans and nested loop joins.
