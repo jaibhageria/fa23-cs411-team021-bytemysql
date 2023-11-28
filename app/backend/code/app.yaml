@@ -1,0 +1,10 @@
+runtime: python311
+
+manual_scaling:
+  instances: 1
+
+env_variables:
+  CLOUD_SQL_USERNAME: root
+  CLOUD_SQL_PASSWORD: bytemysql123
+  CLOUD_SQL_DATABASE_NAME: BeatMetrics
+  CLOUD_SQL_CONNECTION_NAME: cs411-bytemysql:us-central1:spotifydata
