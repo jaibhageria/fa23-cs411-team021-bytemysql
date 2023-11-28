@@ -3,6 +3,8 @@ runtime: python311
 manual_scaling:
   instances: 1
 
+service: backend
+
 env_variables:
   CLOUD_SQL_USERNAME: root
   CLOUD_SQL_PASSWORD: bytemysql123

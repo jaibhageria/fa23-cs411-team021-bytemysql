@@ -6,7 +6,8 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Change this to a secure secret key
-CORS(app)
+app.config['SESSION_COOKIE_SAMESITE'] = None
+CORS(app, supports_credentials=True)
 
 @app.route('/', methods=['POST', 'GET'])
 def home():
