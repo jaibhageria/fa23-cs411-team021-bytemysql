@@ -114,3 +114,136 @@ def get_user_info(user_id):
     conn.close()
     return user
 
+def fetch_all_genres():
+    conn = open_connection()
+
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM Genre")
+    genres = cursor.fetchall()
+    conn.commit()
+    conn.close()
+    return genres
+
+def fetch_all_moods():
+    conn = open_connection()
+
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM Mood")
+    moods = cursor.fetchall()
+    conn.commit()
+    conn.close()
+    return moods
+
+def fetch_all_artists():
+    conn = open_connection()
+
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT artist_id, artist_name FROM Artist")
+    artists = cursor.fetchall()
+    conn.commit()
+    conn.close()
+    return artists
+
+def update_prefs(prefs, user_id):
+    conn = open_connection()
+
+    pref_genre = prefs['genre']
+    pref_mood = prefs['mood']
+    pref_artist = prefs['artist']
+
+    with conn.cursor() as cursor:
+        for genre_id in pref_genre:
+            cursor.execute("INSERT INTO Pref_Genre (user_id, genre_id, genre_points) VALUES (%s, %s, %s)",
+                        (user_id, genre_id, 5)
+            )
+        for mood_id in pref_mood:
+            cursor.execute("INSERT INTO Pref_Mood (user_id, mood_id, mood_points) VALUES (%s, %s, %s)",
+                        (user_id, mood_id, 5)
+            )
+        for artist_id in pref_genre:
+            cursor.execute("INSERT INTO Pref_Artist (user_id, artist_id, artist_points) VALUES (%s, %s, %s)",
+                        (user_id, artist_id, 5)
+            )
+    conn.commit()
+    conn.close()
+    return True
+
+def get_recommendations(user_id):
+    conn = open_connection()
+
+    with conn.cursor() as cursor:
+        cursor.execute("""
+            SELECT s.song_id, s.title, s.release_date, g.genre_name, m.mood_name
+            FROM Song s
+            JOIN (
+                SELECT genre_id
+                FROM (
+                    SELECT genre_id, COUNT(*) AS listen_count
+                    FROM Listens li
+                    JOIN Song so ON li.song_id = so.song_id
+                    WHERE li.listener_id = %s
+                    GROUP BY genre_id
+                    ORDER BY listen_count DESC
+                    LIMIT 1
+                ) AS most_listened_genre
+            ) AS max_genre ON s.genre_id = max_genre.genre_id
+            JOIN (
+                SELECT mood_id
+                FROM (
+                    SELECT mood_id, COUNT(*) AS listen_count
+                    FROM Listens li
+                    JOIN Song so ON li.song_id = so.song_id
+                    WHERE li.listener_id = %s
+                    GROUP BY mood_id
+                    ORDER BY listen_count DESC
+                    LIMIT 1
+                ) AS most_listened_mood
+            ) AS max_mood ON s.mood_id = max_mood.mood_id
+            JOIN Genre g ON s.genre_id = g.genre_id
+            JOIN Mood m ON s.mood_id = m.mood_id
+            LIMIT 15
+        """, (user_id, user_id))
+    recommended_songs = cursor.fetchall()
+    conn.commit()
+    conn.close()
+    return recommended_songs
+
+def get_top15():
+    conn = open_connection()
+
+    with conn.cursor() as cursor:
+        cursor.execute("""SELECT s.song_id, s.title, s.release_date, g.genre_name, m.mood_name
+                        FROM Song s JOIN Genre g ON (s.genre_id = g.genre_id)
+                        JOIN Mood m ON (s.mood_id = m.mood_id)
+                        LIMIT 15
+        """)
+    
+    top15 = cursor.fetchall()
+    conn.commit()
+    conn.close()
+    return top15
+
+def get_top_artists():
+    conn = open_connection()
+
+    with conn.cursor() as cursor:
+        cursor.execute("""
+            SELECT
+                A.artist_name,
+                COUNT(DISTINCT L.listener_id) AS user_count
+            FROM
+                Artist A
+            LEFT JOIN
+                Song S ON A.artist_id = S.artist_id
+            LEFT JOIN
+                Listens L ON S.song_id = L.song_id
+            GROUP BY
+                A.artist_name
+            ORDER BY
+                user_count DESC
+            LIMIT 15
+        """)
+    top_artists = cursor.fetchall()
+    conn.commit()
+    conn.close()
+    return top_artists

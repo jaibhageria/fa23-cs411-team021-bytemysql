@@ -1,6 +1,6 @@
 #main.py
 from flask import Flask, jsonify, request, session
-from db import login_check, check_user_id, add_user_with_pic, fetch_all_songs, get_user_info
+from db import *
 from helper import fetch_random_user_image, base64_encode_picture
 from flask_cors import CORS
 
@@ -13,8 +13,19 @@ CORS(app, supports_credentials=True)
 def home():
     if request.method == 'POST':
         if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400  
-    return 'Welcome to BeatMetrics'
+            return jsonify({"msg": "Missing JSON in request"}), 400
+    
+    # get the recommended songs for this user if logged in else show top 15 songs
+    songs = []
+    if 'user_id' in session:
+        songs = get_recommendations(session['user_id'])
+    else:
+        songs = get_top15()
+
+    top_artists = get_top_artists()
+    return jsonify({'songs': songs, 'artists': top_artists}), 200
+
+    # return 'Welcome to BeatMetrics'
 
 # API endpoint to login
 @app.route('/login', methods=['POST'])
@@ -102,6 +113,44 @@ def get_songs():
         formatted_songs.append(formatted_song)
 
     return jsonify(formatted_songs), 200
+
+# send all genres, moods and artist names and recieve the preferred selections from user
+@app.route("/preference", methods=['GET', 'POST'])
+def get_prefs():
+    # FOR TESTING --- REMOVE
+    session['user_id'] = 'abcd1234'
+    if 'user_id' not in session:
+        return jsonify({'message': 'User not logged in'}), 401
+    
+    # backend sends the list of all genres, moods and artists to frontend
+    if request.method == 'GET':
+        genres = fetch_all_genres()
+        moods = fetch_all_moods()
+        artists = fetch_all_artists()
+
+        prefs_prompt = {
+            "genre": genres,
+            "mood": moods,
+            "artists": artists
+        }
+
+        return jsonify(prefs_prompt), 200
+
+    # recieve the preference selections and update the preference points for that user
+    if request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
+        
+        data = request.json  #format expected: {"genre": [genre_id1, genre_id2, ...], "artist": [artist_id1, artist_id2, ...], "mood": [mood_id1, mood_id2, ...]}
+        ret = update_prefs(data, session["user_id"])
+
+        if ret:
+            return jsonify({"message": "preference update successful"}), 200
+        else:
+            return jsonify({'message': 'there was an error while updating preferences'}), 400
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
