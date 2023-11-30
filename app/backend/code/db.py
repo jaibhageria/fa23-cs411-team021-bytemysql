@@ -282,3 +282,13 @@ def delete_from_playlist(data):
     conn.close()
     return True
 
+def create_empty_playlist(data, user_id):
+    conn = open_connection()
+
+    name = data['playlist_name']
+
+    with conn.cursor() as cursor:
+        cursor.execute("INSERT INTO Playlist (playlist_name, creator_id) VALUES (%s, %s)", (name, user_id))
+    conn.commit()
+    conn.close()
+    return True
