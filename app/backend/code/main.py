@@ -147,8 +147,39 @@ def get_prefs():
         if ret:
             return jsonify({"message": "preference update successful"}), 200
         else:
-            return jsonify({'message': 'there was an error while updating preferences'}), 400
+            return jsonify({'message': 'there was an error while updating preferences'}), 500
 
+# display the playlists of the current user
+@app.route("/playlist", methods=['GET'])
+def get_playlists():
+    # FOR TESTING --- REMOVE
+    session['user_id'] = 'brian95'
+    if 'user_id' not in session:
+        return jsonify({'message': 'User not logged in'}), 401
+
+    user_id = session['user_id']
+
+    if request.method == 'GET':
+        playlists = get_all_playlists(user_id)
+        return jsonify(playlists), 200
+    
+
+# add new songs to a playlist
+@app.route("/addsong", methods=['POST'])
+def add_song_to_playlist():
+    # FOR TESTING --- REMOVE
+    session['user_id'] = 'brian95'
+    if 'user_id' not in session:
+        return jsonify({'message': 'User not logged in'}), 401
+    
+    if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
+    
+    data = request.json  #format expected: {"playlist_id": id, "song_id": id}
+    if add_to_playlist(data):
+        return jsonify({'message': 'succesfully added song to playlist'}), 200
+    else:
+        return jsonify({'message': 'song could not be added to playlist'}), 500
 
 
 
