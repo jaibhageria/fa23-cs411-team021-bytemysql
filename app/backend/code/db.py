@@ -119,7 +119,7 @@ def fetch_all_genres():
 
     with conn.cursor() as cursor:
         cursor.execute("SELECT * FROM Genre")
-    genres = cursor.fetchall()
+        genres = cursor.fetchall()
     conn.commit()
     conn.close()
     return genres
@@ -129,7 +129,7 @@ def fetch_all_moods():
 
     with conn.cursor() as cursor:
         cursor.execute("SELECT * FROM Mood")
-    moods = cursor.fetchall()
+        moods = cursor.fetchall()
     conn.commit()
     conn.close()
     return moods
@@ -139,7 +139,7 @@ def fetch_all_artists():
 
     with conn.cursor() as cursor:
         cursor.execute("SELECT artist_id, artist_name FROM Artist")
-    artists = cursor.fetchall()
+        artists = cursor.fetchall()
     conn.commit()
     conn.close()
     return artists
@@ -203,7 +203,7 @@ def get_recommendations(user_id):
             JOIN Mood m ON s.mood_id = m.mood_id
             LIMIT 15
         """, (user_id, user_id))
-    recommended_songs = cursor.fetchall()
+        recommended_songs = cursor.fetchall()
     conn.commit()
     conn.close()
     return recommended_songs
@@ -218,7 +218,7 @@ def get_top15():
                         LIMIT 15
         """)
     
-    top15 = cursor.fetchall()
+        top15 = cursor.fetchall()
     conn.commit()
     conn.close()
     return top15
@@ -243,7 +243,32 @@ def get_top_artists():
                 user_count DESC
             LIMIT 15
         """)
-    top_artists = cursor.fetchall()
+        top_artists = cursor.fetchall()
     conn.commit()
     conn.close()
     return top_artists
+
+def get_all_playlists(user_id):
+    conn = open_connection()
+
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT * FROM Playlist WHERE creator_id=%s", (user_id))
+        playlists = cursor.fetchall()
+    conn.commit()
+    conn.close()
+    return playlists
+
+def add_to_playlist(data):
+    conn = open_connection()
+
+    playlist_id = data['playlist_id']
+    song_id = data['song_id']
+
+    with conn.cursor() as cursor:
+        cursor.execute("INSERT INTO Playlist_Songs(playlist_id, song_id) VALUES (%s, %s)", (playlist_id, song_id))
+    conn.commit()
+    conn.close()
+    return True
+
+
+
