@@ -164,8 +164,8 @@ def get_playlists():
         return jsonify(playlists), 200
     
 
-# add new songs to a playlist
-@app.route("/addsong", methods=['POST'])
+# add a new song to a playlist
+@app.route("/addsong", methods=['GET', 'POST'])
 def add_song_to_playlist():
     # FOR TESTING --- REMOVE
     session['user_id'] = 'brian95'
@@ -173,13 +173,30 @@ def add_song_to_playlist():
         return jsonify({'message': 'User not logged in'}), 401
     
     if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+        return jsonify({"msg": "Missing JSON in request"}), 400
     
     data = request.json  #format expected: {"playlist_id": id, "song_id": id}
     if add_to_playlist(data):
         return jsonify({'message': 'succesfully added song to playlist'}), 200
     else:
         return jsonify({'message': 'song could not be added to playlist'}), 500
+
+# delete a song from a playlist
+@app.route("/deletesong", methods=['GET', 'POST'])
+def delete_song_from_playlist():
+    # FOR TESTING --- REMOVE
+    session['user_id'] = 'brian95'
+    if 'user_id' not in session:
+        return jsonify({'message': 'User not logged in'}), 401
+    
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    
+    data = request.json #format expected: {"playlist_id": id, "song_id": id}
+    if delete_from_playlist(data):
+        return jsonify({'message': 'succesfully deleted song from playlist'}), 200
+    else:
+        return jsonify({'message': 'song could not be deleted from playlist'}), 500
 
 
 
