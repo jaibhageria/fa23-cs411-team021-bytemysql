@@ -198,6 +198,24 @@ def delete_song_from_playlist():
     else:
         return jsonify({'message': 'song could not be deleted from playlist'}), 500
 
+# create new empty playlist
+@app.route("/createplaylist", methods=['GET', 'POST'])
+def create_playlist():
+    # FOR TESTING --- REMOVE
+    session['user_id'] = 'brian95'
+    if 'user_id' not in session:
+        return jsonify({'message': 'User not logged in'}), 401
+    
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
+    
+    data = request.json  #format expected: {'playlist_name' : name}
+    user_id = session['user_id']
+    
+    if create_empty_playlist(data, user_id):
+        return jsonify({'message': 'succesfully created playlist'}), 200
+    else:
+        return jsonify({'message': 'playlist could not be created'}), 500
 
 
 if __name__ == '__main__':
