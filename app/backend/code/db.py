@@ -3,6 +3,7 @@ import os
 import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymysql.cursors import DictCursor
+import random
 
 db_user = os.environ.get('CLOUD_SQL_USERNAME')
 db_password = os.environ.get('CLOUD_SQL_PASSWORD')
@@ -10,10 +11,19 @@ db_name = os.environ.get('CLOUD_SQL_DATABASE_NAME')
 db_connection_name = os.environ.get('CLOUD_SQL_CONNECTION_NAME')
 
 # Google Cloud SQL configuration for local
+# db_config = {
+#     'host': '35.225.155.122',
+#     'user': 'root',
+#     'password': 'bytemysql123',
+#     'database': 'BeatMetrics',
+#     'cursorclass': DictCursor,
+#     'port': 3306
+# }
+
 db_config = {
-    'host': '35.225.155.122',
+    'host': 'localhost',
     'user': 'root',
-    'password': 'bytemysql123',
+    'password': 'mitali1234',
     'database': 'BeatMetrics',
     'cursorclass': DictCursor,
     'port': 3306
@@ -26,6 +36,20 @@ def open_connection():
         if os.environ.get('GAE_ENV') == 'standard':
             conn = pymysql.connect(user=db_user, password=db_password,
                                 unix_socket=unix_socket, db=db_name,
+                                cursorclass=pymysql.cursors.DictCursor
+                                )
+        else:
+            conn = pymysql.connect(**db_config)
+    except pymysql.MySQLError as e:
+        print(e)
+
+    return conn
+
+def open_connection():
+    try:
+        if os.environ.get('GAE_ENV') == 'standard':
+            conn = pymysql.connect(user=db_user, password=db_password,
+                                 db=db_name,
                                 cursorclass=pymysql.cursors.DictCursor
                                 )
         else:
@@ -140,6 +164,7 @@ def fetch_all_artists():
     with conn.cursor() as cursor:
         cursor.execute("SELECT artist_id, artist_name FROM Artist")
         artists = cursor.fetchall()
+    artists = random.sample(artists, 20)
     conn.commit()
     conn.close()
     return artists
@@ -160,7 +185,7 @@ def update_prefs(prefs, user_id):
             cursor.execute("INSERT INTO Pref_Mood (user_id, mood_id, mood_points) VALUES (%s, %s, %s)",
                         (user_id, mood_id, 5)
             )
-        for artist_id in pref_genre:
+        for artist_id in pref_artist:
             cursor.execute("INSERT INTO Pref_Artist (user_id, artist_id, artist_points) VALUES (%s, %s, %s)",
                         (user_id, artist_id, 5)
             )
@@ -258,17 +283,50 @@ def get_all_playlists(user_id):
     conn.close()
     return playlists
 
-def add_to_playlist(data):
+def check_premium(user_id):
     conn = open_connection()
 
-    playlist_id = data['playlist_id']
-    song_id = data['song_id']
-
     with conn.cursor() as cursor:
-        cursor.execute("INSERT INTO Playlist_Songs(playlist_id, song_id) VALUES (%s, %s)", (playlist_id, song_id))
+        cursor.execute("SELECT premium FROM User WHERE user_id=%s", (user_id))
+        premium = cursor.fetchall()
     conn.commit()
     conn.close()
-    return True
+    return premium[0]['premium']
+
+
+def add_to_playlist(data, user_id):
+    try:
+        conn = open_connection()
+
+        playlist_id = data['playlist_id']
+        song_id = data['song_id']
+        ret = True, 'OK'
+        premium = check_premium(user_id)
+        
+        trigger = f"""CREATE TRIGGER playlistMax BEFORE INSERT ON Playlist_Songs 
+                    FOR EACH ROW 
+                    BEGIN 
+                        IF (SELECT count(*) FROM Playlist_Songs WHERE playlist_id={playlist_id}) >= 5 THEN 
+                            SIGNAL SQLSTATE '45000' 
+                            SET MESSAGE_TEXT = 'Cannot insert. Row count for this ID exceeds the limit of 5.'; 
+                        END IF; 
+                    END;"""
+
+        with conn.cursor() as cursor:
+            try:
+                cursor.execute("DROP TRIGGER IF EXISTS playlistMax")
+                if not premium:
+                    print("User is not premium, executing trigger")
+                    cursor.execute(trigger)
+                cursor.execute("INSERT INTO Playlist_Songs(playlist_id, song_id) VALUES (%s, %s)", (playlist_id, song_id))
+            except pymysql.err.Error as e:
+                ret = False, 'LIMIT'
+        conn.commit()
+        conn.close()
+        return ret
+    
+    except:
+        return False, 'ERROR'
 
 def delete_from_playlist(data):
     conn = open_connection()
