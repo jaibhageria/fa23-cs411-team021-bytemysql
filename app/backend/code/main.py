@@ -14,7 +14,15 @@ def home():
     if request.method == 'POST':
         if not request.is_json:
             return jsonify({"msg": "Missing JSON in request"}), 400
-    
+
+    return 'Welcome to BeatMetrics'
+
+@app.route('/songartistinfo', methods=['POST', 'GET'])
+def explore():
+    if request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
+        
     # get the recommended songs for this user if logged in else show top 15 songs
     songs = []
     if 'user_id' in session:
@@ -25,7 +33,6 @@ def home():
     top_artists = get_top_artists()
     return jsonify({'songs': songs, 'artists': top_artists}), 200
 
-    # return 'Welcome to BeatMetrics'
 
 # API endpoint to login
 @app.route('/login', methods=['POST'])
@@ -168,18 +175,28 @@ def get_playlists():
 @app.route("/addsong", methods=['GET', 'POST'])
 def add_song_to_playlist():
     # FOR TESTING --- REMOVE
+    # session['user_id'] = 'andrew94'
     session['user_id'] = 'brian95'
+    user_id = session['user_id']
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
-    
-    if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+   
+    if request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
     
     data = request.json  #format expected: {"playlist_id": id, "song_id": id}
-    if add_to_playlist(data):
+
+    status, msg = add_to_playlist(data, user_id)
+    print(status, msg)
+
+    if status:
         return jsonify({'message': 'succesfully added song to playlist'}), 200
     else:
-        return jsonify({'message': 'song could not be added to playlist'}), 500
+        if msg == 'LIMIT':
+            return jsonify({'message': 'song could not be added to playlist because row limit has been reached'}), 200
+        else:
+            return jsonify({'message': 'song could not be added to playlist'}), 500
 
 # delete a song from a playlist
 @app.route("/deletesong", methods=['GET', 'POST'])
@@ -189,8 +206,9 @@ def delete_song_from_playlist():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
     
-    if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+    if request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
     
     data = request.json #format expected: {"playlist_id": id, "song_id": id}
     if delete_from_playlist(data):
@@ -206,8 +224,9 @@ def create_playlist():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
     
-    if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+    if request.method == 'POST':
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
     
     data = request.json  #format expected: {'playlist_name' : name}
     user_id = session['user_id']
