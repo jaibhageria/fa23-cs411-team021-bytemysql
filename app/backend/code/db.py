@@ -283,30 +283,6 @@ def get_all_playlists(user_id):
     conn.close()
     return playlists
 
-def add_to_playlist(data):
-    conn = open_connection()
-
-    playlist_id = data['playlist_id']
-    song_id = data['song_id']
-
-    with conn.cursor() as cursor:
-        cursor.execute("INSERT INTO Playlist_Songs(playlist_id, song_id) VALUES (%s, %s)", (playlist_id, song_id))
-    conn.commit()
-    conn.close()
-    return True
-
-def delete_from_playlist(data):
-    conn = open_connection()
-
-    playlist_id = data['playlist_id']
-    song_id = data['song_id']
-
-    with conn.cursor() as cursor:
-        cursor.execute("DELETE FROM Playlist_Songs WHERE playlist_id = %s AND song_id = %s", (playlist_id, song_id))
-    conn.commit()
-    conn.close()
-    return True
-
 def create_empty_playlist(data, user_id):
     conn = open_connection()
 
@@ -382,17 +358,6 @@ def delete_from_playlist(data):
 
     with conn.cursor() as cursor:
         cursor.execute("DELETE FROM Playlist_Songs WHERE playlist_id = %s AND song_id = %s", (playlist_id, song_id))
-    conn.commit()
-    conn.close()
-    return True
-
-def create_empty_playlist(data, user_id):
-    conn = open_connection()
-
-    name = data['playlist_name']
-
-    with conn.cursor() as cursor:
-        cursor.execute("INSERT INTO Playlist (playlist_name, creator_id) VALUES (%s, %s)", (name, user_id))
     conn.commit()
     conn.close()
     return True
