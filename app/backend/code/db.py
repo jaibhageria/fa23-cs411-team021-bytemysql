@@ -273,16 +273,6 @@ def get_top_artists():
     conn.close()
     return top_artists
 
-def get_all_playlists(user_id):
-    conn = open_connection()
-
-    with conn.cursor() as cursor:
-        cursor.execute("SELECT * FROM Playlist WHERE creator_id=%s", (user_id))
-        playlists = cursor.fetchall()
-    conn.commit()
-    conn.close()
-    return playlists
-
 def create_empty_playlist(data, user_id):
     conn = open_connection()
 
