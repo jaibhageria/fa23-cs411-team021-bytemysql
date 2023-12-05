@@ -392,3 +392,104 @@ def delete_from_playlist(data):
         conn.commit()
         conn.close()
     return True
+
+def find_songs_by_name(song_name):
+    conn = open_connection()
+    if conn is None:
+        return {}
+    try:
+        with conn.cursor() as cursor:
+            # Search for the song by name and join with Artist, Mood, and Genre tables
+            cursor.execute(
+            """
+                SELECT
+                    Song.song_id,
+                    Song.title,
+                    Song.release_date,
+                    Artist.artist_name,
+                    Mood.mood_name,
+                    Genre.genre_name
+                FROM Song
+                JOIN Artist ON Song.artist_id = Artist.artist_id
+                JOIN Mood ON Song.mood_id = Mood.mood_id
+                JOIN Genre ON Song.genre_id = Genre.genre_id
+                WHERE Song.title LIKE %s
+            """, ('%' + song_name + '%',))
+            # Fetch all the matching songs with artist, mood, and genre details
+            matching_songs = cursor.fetchall()
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return {}
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    return matching_songs
+
+def fetch_random_songs():
+    conn = open_connection()
+    if conn is None:
+        return {}
+    try:
+        with conn.cursor() as cursor:
+            # Fetch 20 random songs with details, ensuring no repetition
+            cursor.execute("""
+                SELECT
+                    Song.song_id,
+                    Song.title,
+                    Song.release_date,
+                    Artist.artist_name,
+                    Mood.mood_name,
+                    Genre.genre_name
+                FROM Song
+                JOIN Artist ON Song.artist_id = Artist.artist_id
+                JOIN Mood ON Song.mood_id = Mood.mood_id
+                JOIN Genre ON Song.genre_id = Genre.genre_id
+                ORDER BY RAND()
+                LIMIT 20
+            """)
+            # Fetch all the random songs with details
+            random_songs = cursor.fetchall()
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return {}
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    return random_songs
+
+def update_points(song_id, swipe_direction):
+    conn = open_connection()
+    if conn is None:
+        return False
+    try:
+        # Determine the points to be updated based on swipe direction
+        points_to_update = -1 if swipe_direction == 'left' else 1
+        with conn.cursor() as cursor:
+            # Update points for genre, mood, and artist of the song
+            cursor.execute("""
+                UPDATE Pref_Genre
+                SET genre_points = genre_points + %s
+                WHERE genre_id IN (SELECT genre_id FROM Song WHERE song_id = %s)
+            """, (points_to_update, song_id))
+            cursor.execute("""
+                UPDATE Pref_Mood
+                SET mood_points = mood_points + %s
+                WHERE mood_id IN (SELECT mood_id FROM Song WHERE song_id = %s)
+            """, (points_to_update, song_id))
+            cursor.execute("""
+                UPDATE Pref_Artist
+                SET artist_points = artist_points + %s
+                WHERE artist_id IN (SELECT artist_id FROM Song WHERE song_id = %s)
+            """, (points_to_update, song_id))
+        # Commit changes to the database
+        conn.commit()
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return False
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    return True

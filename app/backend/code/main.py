@@ -122,8 +122,8 @@ def get_songs():
     return jsonify(formatted_songs), 200
 
 # send all genres, moods and artist names and recieve the preferred selections from user
-@app.route("/preference", methods=['GET', 'POST'])
-def get_prefs():
+@app.route("/fetch/options", methods=['GET'])
+def get_all_options():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
     
@@ -133,13 +133,19 @@ def get_prefs():
         moods = fetch_all_moods()
         artists = fetch_all_artists()
 
-        prefs_prompt = {
+        results = {
             "genre": genres,
             "mood": moods,
             "artists": artists
         }
 
-        return jsonify(prefs_prompt), 200
+        return jsonify(results), 200
+
+# send all genres, moods and artist names and recieve the preferred selections from user
+@app.route("/set/preference", methods=['POST'])
+def update_prefs():
+    if 'user_id' not in session:
+        return jsonify({'message': 'User not logged in'}), 401
 
     # recieve the preference selections and update the preference points for that user
     if request.method == 'POST':
@@ -221,8 +227,53 @@ def create_playlist():
     if create_empty_playlist(data, user_id):
         return jsonify({'message': 'succesfully created playlist'}), 200
     else:
-        return jsonify({'message': 'playlist could not be created'}), 500
+        return jsonify({'error': 'playlist could not be created'}), 500
+    
+# API endpoint to search for a song by name
+@app.route('/search_song', methods=['GET'])
+def search_songs():
+    if 'user_id' not in session:
+        return jsonify({'error': 'User not logged in'}), 401
+    # Get the song name from the query parameters
+    song_name = request.args.get('song_name')
+    # Validate if 'song_name' is present in the query parameters
+    if song_name is None:
+        return jsonify({'error': 'Song name is missing in the request.'}), 400
+    try:
+        results = find_songs_by_name(song_name)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify({'songs': results})
 
+# API endpoint to fetch 20 random songs with details
+@app.route('/get_random_songs', methods=['GET'])
+def get_random_songs():
+    if 'user_id' not in session:
+        return jsonify({'error': 'User not logged in'}), 401
+    try:
+        results = fetch_random_songs()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify({'songs': results})
+
+# API endpoint to update points for genre, mood, and artist of a song
+@app.route('/update_song_points', methods=['POST'])
+def update_song_points():
+    # Get JSON payload from the request
+    swipe_data = request.json
+    # Extract song ID and swipe direction from the payload
+    song_id = swipe_data.get('song_id')
+    swipe_direction = swipe_data.get('swipe_direction')  # 'left' for decrease, 'right' for increase
+    # Validate if 'song_id' and 'swipe_direction' are present in the payload
+    if song_id is None or swipe_direction not in ['left', 'right']:
+        return jsonify({'error': 'Invalid request payload.'}), 400
+    try:
+        res = update_points(song_id, swipe_direction)
+        if not res:
+            return jsonify({'message': 'Failed to update points.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    return jsonify({'message': 'Points updated successfully.'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
