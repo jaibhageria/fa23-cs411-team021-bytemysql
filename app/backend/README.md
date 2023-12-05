@@ -44,3 +44,17 @@ gcloud app services stop
 gcloud app versions stop <version id from versions list> # example: gcloud app versions stop 20231127t033136
 ```
 For more operations navigate to the app engine dashboard on your GCP project
+
+Useful SQL commands:
+```sql
+-- Show stored procedure status
+SHOW PROCEDURE STATUS LIKE 'GetSongRecommendations'\G
+-- Show the stored procedure code
+SHOW CREATE PROCEDURE GetSongRecommendations\G
+-- Remove a stored procedure
+DROP PROCEDURE IF EXISTS GetSongRecommendations;
+-- List all triggers
+SHOW TRIGGERS;
+-- Remove a particular trigger
+DROP TRIGGER playlistMax;
+```
