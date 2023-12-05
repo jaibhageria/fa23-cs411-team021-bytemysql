@@ -124,8 +124,6 @@ def get_songs():
 # send all genres, moods and artist names and recieve the preferred selections from user
 @app.route("/preference", methods=['GET', 'POST'])
 def get_prefs():
-    # FOR TESTING --- REMOVE
-    session['user_id'] = 'abcd1234'
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
     
@@ -159,8 +157,6 @@ def get_prefs():
 # display the playlists of the current user
 @app.route("/playlist", methods=['GET'])
 def get_playlists():
-    # FOR TESTING --- REMOVE
-    session['user_id'] = 'brian95'
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
 
@@ -174,9 +170,6 @@ def get_playlists():
 # add a new song to a playlist
 @app.route("/addsong", methods=['GET', 'POST'])
 def add_song_to_playlist():
-    # FOR TESTING --- REMOVE
-    # session['user_id'] = 'andrew94'
-    session['user_id'] = 'brian95'
     user_id = session['user_id']
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
@@ -187,22 +180,18 @@ def add_song_to_playlist():
     
     data = request.json  #format expected: {"playlist_id": id, "song_id": id}
 
-    status, msg = add_to_playlist(data, user_id)
-    print(status, msg)
+    status, limit = add_to_playlist(data, user_id)
 
     if status:
         return jsonify({'message': 'succesfully added song to playlist'}), 200
+    elif limit:
+        return jsonify({'message': 'song could not be added to playlist because max capacity has been reached'}), 200
     else:
-        if msg == 'LIMIT':
-            return jsonify({'message': 'song could not be added to playlist because row limit has been reached'}), 200
-        else:
-            return jsonify({'message': 'song could not be added to playlist'}), 500
+        return jsonify({'message': 'song could not be added to playlist'}), 500
 
 # delete a song from a playlist
 @app.route("/deletesong", methods=['GET', 'POST'])
 def delete_song_from_playlist():
-    # FOR TESTING --- REMOVE
-    session['user_id'] = 'brian95'
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
     
@@ -219,8 +208,6 @@ def delete_song_from_playlist():
 # create new empty playlist
 @app.route("/createplaylist", methods=['GET', 'POST'])
 def create_playlist():
-    # FOR TESTING --- REMOVE
-    session['user_id'] = 'brian95'
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
     
