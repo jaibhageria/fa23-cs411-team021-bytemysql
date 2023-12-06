@@ -255,13 +255,13 @@ def update_prefs(prefs, user_id):
         conn.close()
     return True
 
-def get_recommendations(user_id):
+def get_recommendations(user_id, num_songs):
     conn = open_connection()
     if conn is None:
         return {}
     try:
         with conn.cursor() as cursor:
-            cursor.execute("CALL GetSongRecommendations(%s)", (user_id))
+            cursor.execute("CALL GetSongRecommendations(%s, %s)", (user_id, num_songs))
             recommended_songs = cursor.fetchall()
     except Exception as e:
         error(f"An error occurred: {str(e)}")
@@ -406,7 +406,7 @@ def delete_from_playlist(data):
         conn.close()
     return True
 
-def find_songs_by_name(song_name):
+def find_songs_by_name(song_name, number):
     conn = open_connection()
     if conn is None:
         return {}
@@ -427,7 +427,110 @@ def find_songs_by_name(song_name):
                 JOIN Mood ON Song.mood_id = Mood.mood_id
                 JOIN Genre ON Song.genre_id = Genre.genre_id
                 WHERE Song.title LIKE %s
-            """, ('%' + song_name + '%',))
+                LIMIT %s
+            """, ('%' + song_name + '%', int(number)))
+            # Fetch all the matching songs with artist, mood, and genre details
+            matching_songs = cursor.fetchall()
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return {}
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    return matching_songs
+
+def find_songs_by_genre(genre_name, number):
+    conn = open_connection()
+    if conn is None:
+        return {}
+    try:
+        with conn.cursor() as cursor:
+            # Search for the song by name and join with Artist, Mood, and Genre tables
+            cursor.execute(
+            """
+                SELECT
+                    Song.song_id,
+                    Song.title,
+                    Song.release_date,
+                    Artist.artist_name,
+                    Mood.mood_name,
+                    Genre.genre_name
+                FROM Song
+                JOIN Artist ON Song.artist_id = Artist.artist_id
+                JOIN Mood ON Song.mood_id = Mood.mood_id
+                JOIN Genre ON Song.genre_id = Genre.genre_id
+                WHERE Genre.genre_name LIKE %s
+                LIMIT %s
+            """, ('%' + genre_name + '%', int(number)))
+            # Fetch all the matching songs with artist, mood, and genre details
+            matching_songs = cursor.fetchall()
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return {}
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    return matching_songs
+
+def find_songs_by_mood(mood_name, number):
+    conn = open_connection()
+    if conn is None:
+        return {}
+    try:
+        with conn.cursor() as cursor:
+            # Search for the song by name and join with Artist, Mood, and Genre tables
+            cursor.execute(
+            """
+                SELECT
+                    Song.song_id,
+                    Song.title,
+                    Song.release_date,
+                    Artist.artist_name,
+                    Mood.mood_name,
+                    Genre.genre_name
+                FROM Song
+                JOIN Artist ON Song.artist_id = Artist.artist_id
+                JOIN Mood ON Song.mood_id = Mood.mood_id
+                JOIN Genre ON Song.genre_id = Genre.genre_id
+                WHERE Mood.mood_name LIKE %s
+                LIMIT %s
+            """, ('%' + mood_name + '%', int(number)))
+            # Fetch all the matching songs with artist, mood, and genre details
+            matching_songs = cursor.fetchall()
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return {}
+    finally:
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    return matching_songs
+
+def find_songs_by_artist(artist_name, number):
+    conn = open_connection()
+    if conn is None:
+        return {}
+    try:
+        with conn.cursor() as cursor:
+            # Search for the song by name and join with Artist, Mood, and Genre tables
+            cursor.execute(
+            """
+                SELECT
+                    Song.song_id,
+                    Song.title,
+                    Song.release_date,
+                    Artist.artist_name,
+                    Mood.mood_name,
+                    Genre.genre_name
+                FROM Song
+                JOIN Artist ON Song.artist_id = Artist.artist_id
+                JOIN Mood ON Song.mood_id = Mood.mood_id
+                JOIN Genre ON Song.genre_id = Genre.genre_id
+                WHERE Artist.artist_name LIKE %s
+                LIMIT %s
+            """, ('%' + artist_name + '%', int(number)))
             # Fetch all the matching songs with artist, mood, and genre details
             matching_songs = cursor.fetchall()
     except Exception as e:
@@ -472,30 +575,44 @@ def fetch_random_songs():
         conn.close()
     return random_songs
 
-def update_points(song_id, swipe_direction):
+def update_points(song_id, swipe_direction, user_id):
     conn = open_connection()
     if conn is None:
         return False
     try:
         # Determine the points to be updated based on swipe direction
-        points_to_update = -1 if swipe_direction == 'left' else 1
+        points_to_update = -2 if swipe_direction == 'left' else 2
         with conn.cursor() as cursor:
-            # Update points for genre, mood, and artist of the song
+            # Fetch genre_id, mood_id, artist_id, etc., based on the song_id
             cursor.execute("""
-                UPDATE Pref_Genre
-                SET genre_points = genre_points + %s
-                WHERE genre_id IN (SELECT genre_id FROM Song WHERE song_id = %s)
-            """, (points_to_update, song_id))
+                SELECT genre_id, mood_id, artist_id
+                FROM Song
+                WHERE song_id = %s
+            """, (song_id,))
+            song_details = cursor.fetchone()
+            if not song_details:
+                error(f"Song with id: {song_id} not found")
+                return False
+            genre_id = song_details['genre_id']
+            mood_id = song_details['mood_id']
+            artist_id = song_details['artist_id']
             cursor.execute("""
-                UPDATE Pref_Mood
-                SET mood_points = mood_points + %s
-                WHERE mood_id IN (SELECT mood_id FROM Song WHERE song_id = %s)
-            """, (points_to_update, song_id))
+                INSERT INTO Pref_Genre (user_id, genre_id, genre_points)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE genre_points = genre_points + %s
+            """, (user_id, genre_id, points_to_update, points_to_update))
+            # Update points for mood
             cursor.execute("""
-                UPDATE Pref_Artist
-                SET artist_points = artist_points + %s
-                WHERE artist_id IN (SELECT artist_id FROM Song WHERE song_id = %s)
-            """, (points_to_update, song_id))
+                INSERT INTO Pref_Mood (user_id, mood_id, mood_points)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE mood_points = mood_points + %s
+            """, (user_id, mood_id, points_to_update, points_to_update))
+            # Update points for artist
+            cursor.execute("""
+                INSERT INTO Pref_Artist (user_id, artist_id, artist_points)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE artist_points = artist_points + %s
+            """, (user_id, artist_id, points_to_update, points_to_update))
         # Commit changes to the database
         conn.commit()
     except Exception as e:
@@ -507,7 +624,7 @@ def update_points(song_id, swipe_direction):
         conn.close()
     return True
 
-def check_user_playlist(user_id, data):
+def check_user_playlist(data, user_id):
     conn = open_connection()
     if conn is None:
         return {}
@@ -517,7 +634,8 @@ def check_user_playlist(user_id, data):
         return {}
     try:
         with conn.cursor() as cursor:
-            res = cursor.execute("SELECT COUNT(*) AS playlist_count FROM Playlist WHERE playlist_id=%s AND creator_id=%s", (playlist_id, user_id))
+            cursor.execute("SELECT COUNT(*) AS playlist_count FROM Playlist WHERE playlist_id=%s AND creator_id=%s", (playlist_id, user_id))
+            res = cursor.fetchall()
     except Exception as e:
         error(f"An error occurred: {str(e)}")
         return {}
@@ -525,3 +643,43 @@ def check_user_playlist(user_id, data):
         conn.commit()
         conn.close()
     return res
+
+def update_premium_status(user_id, is_premium):
+    conn = open_connection()
+    if conn is None:
+        return False
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("UPDATE User SET premium=%s WHERE user_id=%s", (is_premium, user_id))
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return False
+    finally:
+        conn.commit()
+        conn.close()
+    return True
+
+def get_playlist_songs(playlist_id):
+    conn = open_connection()
+    if conn is None:
+        return {}
+    try:
+        with conn.cursor() as cursor:
+            # Get all songs in the playlist along with their details
+            cursor.execute("""
+                SELECT Song.*, Artist.artist_name, Genre.genre_name, Mood.mood_name
+                FROM Playlist_Songs
+                JOIN Song ON Playlist_Songs.song_id = Song.song_id
+                LEFT JOIN Artist ON Song.artist_id = Artist.artist_id
+                LEFT JOIN Genre ON Song.genre_id = Genre.genre_id
+                LEFT JOIN Mood ON Song.mood_id = Mood.mood_id
+                WHERE Playlist_Songs.playlist_id = %s
+            """, (playlist_id,))
+            playlist_songs = cursor.fetchall()
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return {}
+    finally:
+        conn.commit()
+        conn.close()
+    return playlist_songs

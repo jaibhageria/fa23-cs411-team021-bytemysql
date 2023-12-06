@@ -164,7 +164,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS `GetSongRecommendations`;
 DELIMITER //
-CREATE PROCEDURE GetSongRecommendations(IN p_user_id VARCHAR(255))
+CREATE PROCEDURE GetSongRecommendations(IN p_user_id VARCHAR(255), IN num_songs INT)
 BEGIN
     -- Declare variables
     DECLARE done BOOLEAN DEFAULT FALSE;
@@ -188,7 +188,7 @@ BEGIN
         LEFT JOIN Pref_Artist pa ON s.artist_id = pa.artist_id AND pa.user_id = p_user_id
         WHERE s.song_id NOT IN (SELECT song_id FROM Listens WHERE listener_id = p_user_id)
         ORDER BY score DESC
-        LIMIT 10;
+        LIMIT num_songs;
 
      -- Declare continue handler for the cursor
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;

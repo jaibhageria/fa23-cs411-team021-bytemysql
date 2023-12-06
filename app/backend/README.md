@@ -86,8 +86,8 @@ APIs tha require login:
 ```bash
 # Get user information, this has an image as well which can be displayed on frontend
 GET /userinfo
-# Get song recommendations for a user
-GET /recommendations
+# Get song recommendations for a user, specify number of recommendations needed
+GET /recommendations/<int:num_songs>
 # Get list of all the songs and their details from the backend
 GET /songs
 # Get details of all genres, all moods, and all artists
@@ -96,8 +96,8 @@ GET /fetch_options
 GET /get_random_songs
 # Update points for genre, mood and artist for a song
 POST /update_song_points {"song_id": 1, "swipe_direction": "left"}
-# Search songs based on filters and song names. Filters are artist, genre, mood
-GET /search_song?filter=artist&song_name=abc
+# Search songs based on filters and song names. Filters are song, artist, genre, mood. Search string is a valid string. Number is the number of results returned
+GET /search_song?filter=artist&search=abc&number=10
 # Endpoint to get a random image
 GET /get_random_image
 # Create a new playlist
@@ -111,7 +111,7 @@ GET /playlist
 # Set the preferences. All the fields below are optional
 POST /set_preference {"genre": [1,2,3], "artist": [1,2,3], "mood": [1,2,3]}
 # Get all the songs inside a playlist
-GET /playlist_songs?playlist_id=1
+GET /playlist_songs/<int:playlist_id>
 # Set user premium or non-premium; 1 for premium, 0 for non-premium
-POST /premium {"premium": 1}
+POST /premium {"is_premium": 1}
 ```
