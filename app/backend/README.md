@@ -80,20 +80,20 @@ GET /
 GET /top_songs
 # Fetch the top 15 artists overall based on number of listeners
 GET /top_artists
+# Get 20 random songs; will be used in swipe interface
+GET /get_random_songs
 ```
 
-APIs tha require login:
+APIs that require login:
 ```bash
 # Get user information, this has an image as well which can be displayed on frontend
-GET /userinfo
+GET /user_info
 # Get song recommendations for a user, specify number of recommendations needed
 GET /recommendations/<int:num_songs>
 # Get list of all the songs and their details from the backend
 GET /songs
 # Get details of all genres, all moods, and all artists
 GET /fetch_options
-# Get 20 random songs; will be used in swipe interface
-GET /get_random_songs
 # Update points for genre, mood and artist for a song
 POST /update_song_points {"song_id": 1, "swipe_direction": "left"}
 # Search songs based on filters and song names. Filters are song, artist, genre, mood. Search string is a valid string. Number is the number of results returned
