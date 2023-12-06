@@ -11,7 +11,7 @@ app.config['SESSION_COOKIE_SAMESITE'] = None
 CORS(app, supports_credentials=True)
 
 # Define the path to the folder containing images
-image_folder = os.path.join(os.getcwd(), '../images')
+image_folder = os.path.join(os.getcwd(), 'images')
 
 @app.route('/', methods=['GET'])
 def home():
@@ -287,13 +287,7 @@ def update_song_points():
 def get_random_image():
     image_files = [f for f in os.listdir(image_folder) if os.path.isfile(os.path.join(image_folder, f))]
     random_image = random.choice(image_files)
-    image_path = os.path.join(image_folder, random_image)
-    return jsonify({'image_path': image_path})
-
-# Serve the actual image file
-@app.route('/images/<filename>', methods=['GET'])
-def serve_image(filename):
-    return send_file(os.path.join(image_folder, filename), mimetype='image/jpeg')
+    return send_file(os.path.join(image_folder, random_image), mimetype='image/jpeg')
 
 if __name__ == '__main__':
     app.run(debug=True)
