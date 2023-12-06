@@ -58,7 +58,11 @@ def login_check(user_id, password):
         return False
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM User WHERE (user_id = %s)", (user_id))
+            cursor.execute("""
+                SELECT *
+                FROM User
+                WHERE user_id = %s
+            """, (user_id,))
             user = cursor.fetchone()
     except Exception as e:
         error(f"An error occurred: {str(e)}")
@@ -77,7 +81,7 @@ def check_user_id(user_id):
         return False
     try:
         with conn.cursor() as cursor:
-            cursor.execute("SELECT * FROM User WHERE (user_id = %s)", (user_id))
+            cursor.execute("SELECT * FROM User WHERE user_id = %s", (user_id,))
             existing_user = cursor.fetchone()
     except Exception as e:
         error(f"An error occurred: {str(e)}")
@@ -213,27 +217,32 @@ def update_prefs(prefs, user_id):
     conn = open_connection()
     if conn is None:
         return False
+    genre_list = prefs.get('genre', [])
+    mood_list = prefs.get('mood', [])
+    artist_list = prefs.get('artist', [])
     try:
         with conn.cursor() as cursor:
-            for genre_id in prefs.get('genre', []):
+            for genre_id in genre_list:
                 cursor.execute(
                         "INSERT INTO Pref_Genre (user_id, genre_id, genre_points) VALUES (%s, %s, 5) ON DUPLICATE KEY UPDATE genre_points = genre_points"
                         , (user_id, genre_id)
                     )
-            cursor.execute(
-                    "DELETE FROM Pref_Genre WHERE user_id = %s AND genre_id NOT IN %s"
-                    , (user_id, tuple(prefs.get('genre', [])))
-                )
-            for mood_id in prefs.get('mood', []):
+            if len(genre_list) != 0:
+                cursor.execute(
+                        "DELETE FROM Pref_Genre WHERE user_id = %s AND genre_id NOT IN %s"
+                        , (user_id, tuple(genre_list))
+                    )
+            for mood_id in mood_list:
                     cursor.execute(
                         "INSERT INTO Pref_Mood (user_id, mood_id, mood_points) VALUES (%s, %s, 5) ON DUPLICATE KEY UPDATE mood_points = mood_points"
                         , (user_id, mood_id)
                     )
-            cursor.execute(
-                    "DELETE FROM Pref_Mood WHERE user_id = %s AND mood_id NOT IN %s"
-                    , (user_id, tuple(prefs.get('mood', [])))
-                )
-            for artist_id in prefs.get('artist', []):
+            if len(mood_list) != 0:
+                cursor.execute(
+                        "DELETE FROM Pref_Mood WHERE user_id = %s AND mood_id NOT IN %s"
+                        , (user_id, tuple(mood_list))
+                    )
+            for artist_id in artist_list:
                     cursor.execute(
                         "INSERT INTO Pref_Artist (user_id, artist_id, artist_points) VALUES (%s, %s, 5) ON DUPLICATE KEY UPDATE artist_points = artist_points"
                         , (user_id, artist_id)
@@ -294,17 +303,21 @@ def get_top_artists():
             ("""
                 SELECT
                     A.artist_name,
-                    COUNT(DISTINCT L.listener_id) AS user_count
+                    A.nationality,
+                    G.genre_name,
+                    COUNT(DISTINCT L.listener_id) AS listener_count
                 FROM
                     Artist A
                 LEFT JOIN
                     Song S ON A.artist_id = S.artist_id
                 LEFT JOIN
                     Listens L ON S.song_id = L.song_id
+                JOIN
+                    Genre G on G.genre_id = A.genre_id
                 GROUP BY
-                    A.artist_name
+                    A.artist_id
                 ORDER BY
-                    user_count DESC
+                    listener_count DESC
                 LIMIT 15
             """)
             top_artists = cursor.fetchall()
@@ -350,7 +363,7 @@ def get_all_playlists(user_id):
     return playlists
 
 
-def add_to_playlist(data, user_id):
+def add_to_playlist(data):
     conn = open_connection()
     if conn is None:
         return False, False
@@ -493,3 +506,22 @@ def update_points(song_id, swipe_direction):
         cursor.close()
         conn.close()
     return True
+
+def check_user_playlist(user_id, data):
+    conn = open_connection()
+    if conn is None:
+        return {}
+    playlist_id = data.get('playlist_id', None)
+    if playlist_id is None:
+        error(f"playlist_id is None")
+        return {}
+    try:
+        with conn.cursor() as cursor:
+            res = cursor.execute("SELECT COUNT(*) AS playlist_count FROM Playlist WHERE playlist_id=%s AND creator_id=%s", (playlist_id, user_id))
+    except Exception as e:
+        error(f"An error occurred: {str(e)}")
+        return {}
+    finally:
+        conn.commit()
+        conn.close()
+    return res

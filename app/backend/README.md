@@ -45,7 +45,8 @@ gcloud app versions stop <version id from versions list> # example: gcloud app v
 ```
 For more operations navigate to the app engine dashboard on your GCP project
 
-Useful SQL commands:
+## Useful SQL commands:
+
 ```sql
 -- Show stored procedure status
 SHOW PROCEDURE STATUS LIKE 'GetSongRecommendations'\G
@@ -57,4 +58,62 @@ DROP PROCEDURE IF EXISTS GetSongRecommendations;
 SHOW TRIGGERS;
 -- Remove a particular trigger
 DROP TRIGGER playlistMax;
+```
+
+## API Documentation:
+
+Login, register, logout APIs:
+```bash
+# Login
+POST /login {"user_id": "foo", "password": "bar"}
+# Register
+POST /register {"user_id": "foo", "password": "bar", "email": "foo@bar.com", "first_name": "foo", "last_name": "bar", "phone_number": "1234567890"}
+# Logout
+POST /logout
+```
+
+APIs that don't require login:
+```bash
+# Just display welcome message
+GET /
+# Just fetches 15 songs from the database based on nothing, topsongs is a misnomer
+GET /top_songs
+# Fetch the top 15 artists overall based on number of listeners
+GET /top_artists
+```
+
+APIs tha require login:
+```bash
+# Get user information, this has an image as well which can be displayed on frontend
+GET /userinfo
+# Get song recommendations for a user
+GET /recommendations
+# Get list of all the songs and their details from the backend
+GET /songs
+# Get details of all genres, all moods, and all artists
+GET /fetch_options
+# Get 20 random songs; will be used in swipe interface
+GET /get_random_songs
+# Update points for genre, mood and artist for a song
+POST /update_song_points {"song_id": 1, "swipe_direction": "left"}
+# Search songs based on filters and song names. Filters are artist, genre, mood
+GET /search_song?filter=artist&song_name=abc
+# Endpoint to get a random image
+GET /get_random_image
+# Serve the actual image file, use the file name from the /get_random_image to get a image here
+GET /images/<filename>
+# Create a new playlist
+POST /create_playlist {"playlist_name": "name"}
+# Delete a song from a playlist
+POST /delete_song {"playlist_id": id, "song_id": id}
+# Add a song to a playlist
+POST /add_song {"playlist_id": id, "song_id": id}
+# Display playlists belonging to a user
+GET /playlist
+# Set the preferences. All the fields below are optional
+POST /set_preference {"genre": [1,2,3], "artist": [1,2,3], "mood": [1,2,3]}
+# Get all the songs inside a playlist
+GET /playlist_songs?playlist_id=1
+# Set user premium or non-premium; 1 for premium, 0 for non-premium
+POST /premium {"premium": 1}
 ```

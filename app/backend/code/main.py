@@ -1,38 +1,41 @@
 #main.py
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify, request, session, send_file
 from db import *
-from helper import fetch_random_user_image, base64_encode_picture
+from helper import *
 from flask_cors import CORS
+import os
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"  # Change this to a secure secret key
 app.config['SESSION_COOKIE_SAMESITE'] = None
 CORS(app, supports_credentials=True)
 
-@app.route('/', methods=['POST', 'GET'])
-def home():
-    if request.method == 'POST':
-        if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+# Define the path to the folder containing images
+image_folder = os.path.join(os.getcwd(), '../images')
 
+@app.route('/', methods=['GET'])
+def home():
     return 'Welcome to BeatMetrics'
 
-@app.route('/songartistinfo', methods=['POST', 'GET'])
-def explore():
-    if request.method == 'POST':
-        if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
-        
-    # get the recommended songs for this user if logged in else show top 15 songs
+@app.route('/top_songs', methods=['GET'])
+def top_songs():
     songs = []
-    if 'user_id' in session:
-        songs = get_recommendations(session['user_id'])
-    else:
-        songs = get_top15()
+    songs = get_top15()
+    return jsonify({'songs': songs}), 200
 
+@app.route('/top_artists', methods=['GET'])
+def top_artists():
+    top_artists = []
     top_artists = get_top_artists()
-    return jsonify({'songs': songs, 'artists': top_artists}), 200
+    return jsonify({'artists': top_artists}), 200
 
+@app.route('/recommendations', methods=['GET'])
+def recommendations():
+    if 'user_id' not in session:
+        return jsonify({'message': 'User not logged in'}), 401
+    songs = []
+    songs = get_recommendations(session.get('user_id'))
+    return jsonify({'songs': songs}), 200
 
 # API endpoint to login
 @app.route('/login', methods=['POST'])
@@ -75,12 +78,12 @@ def register():
         return jsonify({"msg": "Error in API request"}), 400
 
 # API endpoint to get user information
-@app.route('/userinfo', methods=['GET'])
+@app.route('/user_info', methods=['GET'])
 def userinfo():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
 
-    user_id = session['user_id']
+    user_id = session.get('user_id')
     user = get_user_info(user_id)
     if user:
         user['picture'] = base64_encode_picture(user['picture'])
@@ -122,7 +125,7 @@ def get_songs():
     return jsonify(formatted_songs), 200
 
 # send all genres, moods and artist names and recieve the preferred selections from user
-@app.route("/fetch/options", methods=['GET'])
+@app.route("/fetch_options", methods=['GET'])
 def get_all_options():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
@@ -142,8 +145,8 @@ def get_all_options():
         return jsonify(results), 200
 
 # send all genres, moods and artist names and recieve the preferred selections from user
-@app.route("/set/preference", methods=['POST'])
-def update_prefs():
+@app.route("/set_preference", methods=['POST'])
+def set_prefs():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
 
@@ -152,13 +155,13 @@ def update_prefs():
         if not request.is_json:
             return jsonify({"msg": "Missing JSON in request"}), 400
         
-        data = request.json  #format expected: {"genre": [genre_id1, genre_id2, ...], "artist": [artist_id1, artist_id2, ...], "mood": [mood_id1, mood_id2, ...]}
-        ret = update_prefs(data, session["user_id"])
+    data = request.json  #format expected: {"genre": [genre_id1, genre_id2, ...], "artist": [artist_id1, artist_id2, ...], "mood": [mood_id1, mood_id2, ...]}
+    ret = update_prefs(data, session.get("user_id"))
 
-        if ret:
-            return jsonify({"message": "preference update successful"}), 200
-        else:
-            return jsonify({'message': 'there was an error while updating preferences'}), 500
+    if ret:
+        return jsonify({"message": "preference update successful"}), 200
+    else:
+        return jsonify({'message': 'there was an error while updating preferences'}), 500
 
 # display the playlists of the current user
 @app.route("/playlist", methods=['GET'])
@@ -166,7 +169,7 @@ def get_playlists():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
 
-    user_id = session['user_id']
+    user_id = session.get('user_id')
 
     if request.method == 'GET':
         playlists = get_all_playlists(user_id)
@@ -174,19 +177,22 @@ def get_playlists():
     
 
 # add a new song to a playlist
-@app.route("/addsong", methods=['GET', 'POST'])
+@app.route("/add_song", methods=['POST'])
 def add_song_to_playlist():
-    user_id = session['user_id']
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
-   
+    user_id = session.get('user_id')
     if request.method == 'POST':
         if not request.is_json:
             return jsonify({"msg": "Missing JSON in request"}), 400
     
     data = request.json  #format expected: {"playlist_id": id, "song_id": id}
 
-    status, limit = add_to_playlist(data, user_id)
+    res = jsonify(check_user_playlist(data, user_id))
+    if res.get('playlist_count') < 1:
+        return jsonify({"msg": f"user_id:{user_id} does not own the playlist with playlist_id:{data.get('playlist_id', None)}"}), 400
+
+    status, limit = add_to_playlist(data)
 
     if status:
         return jsonify({'message': 'succesfully added song to playlist'}), 200
@@ -196,7 +202,7 @@ def add_song_to_playlist():
         return jsonify({'message': 'song could not be added to playlist'}), 500
 
 # delete a song from a playlist
-@app.route("/deletesong", methods=['GET', 'POST'])
+@app.route("/delete_song", methods=['POST'])
 def delete_song_from_playlist():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
@@ -212,7 +218,7 @@ def delete_song_from_playlist():
         return jsonify({'message': 'song could not be deleted from playlist'}), 500
 
 # create new empty playlist
-@app.route("/createplaylist", methods=['GET', 'POST'])
+@app.route("/create_playlist", methods=['POST'])
 def create_playlist():
     if 'user_id' not in session:
         return jsonify({'message': 'User not logged in'}), 401
@@ -222,7 +228,7 @@ def create_playlist():
             return jsonify({"msg": "Missing JSON in request"}), 400
     
     data = request.json  #format expected: {'playlist_name' : name}
-    user_id = session['user_id']
+    user_id = session.get('user_id')
     
     if create_empty_playlist(data, user_id):
         return jsonify({'message': 'succesfully created playlist'}), 200
@@ -236,6 +242,7 @@ def search_songs():
         return jsonify({'error': 'User not logged in'}), 401
     # Get the song name from the query parameters
     song_name = request.args.get('song_name')
+    filter_type = request.args.get('filter')
     # Validate if 'song_name' is present in the query parameters
     if song_name is None:
         return jsonify({'error': 'Song name is missing in the request.'}), 400
@@ -274,6 +281,19 @@ def update_song_points():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     return jsonify({'message': 'Points updated successfully.'}), 200
+
+# Endpoint to get a random image
+@app.route('/get_random_image', methods=['GET'])
+def get_random_image():
+    image_files = [f for f in os.listdir(image_folder) if os.path.isfile(os.path.join(image_folder, f))]
+    random_image = random.choice(image_files)
+    image_path = os.path.join(image_folder, random_image)
+    return jsonify({'image_path': image_path})
+
+# Serve the actual image file
+@app.route('/images/<filename>', methods=['GET'])
+def serve_image(filename):
+    return send_file(os.path.join(image_folder, filename), mimetype='image/jpeg')
 
 if __name__ == '__main__':
     app.run(debug=True)

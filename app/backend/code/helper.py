@@ -7,7 +7,7 @@ import sys
 # Configure the logging module
 logging.basicConfig(
     stream=sys.stdout,  # Log to standard output
-    level=logging.ERROR,  # Set the logging level to ERROR or higher
+    level=logging.DEBUG,  # Set the logging level to ERROR or higher
     format='%(asctime)s [%(levelname)s] - %(message)s',  # Define the log message format
     datefmt='%Y-%m-%d %H:%M:%S'  # Define the date and time format
 )
