@@ -100,8 +100,6 @@ POST /update_song_points {"song_id": 1, "swipe_direction": "left"}
 GET /search_song?filter=artist&song_name=abc
 # Endpoint to get a random image
 GET /get_random_image
-# Serve the actual image file, use the file name from the /get_random_image to get a image here
-GET /images/<filename>
 # Create a new playlist
 POST /create_playlist {"playlist_name": "name"}
 # Delete a song from a playlist
