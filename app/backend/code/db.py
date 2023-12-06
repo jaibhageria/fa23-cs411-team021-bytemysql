@@ -277,8 +277,7 @@ def get_top15():
         return {}
     try:
         with conn.cursor() as cursor:
-            cursor.execute
-            ("""
+            cursor.execute("""
                 SELECT s.song_id, s.title, s.release_date, g.genre_name, m.mood_name
                 FROM Song s JOIN Genre g ON (s.genre_id = g.genre_id)
                 JOIN Mood m ON (s.mood_id = m.mood_id)
@@ -299,8 +298,7 @@ def get_top_artists():
         return {}
     try:
         with conn.cursor() as cursor:
-            cursor.execute
-            ("""
+            cursor.execute("""
                 SELECT
                     A.artist_name,
                     A.nationality,
