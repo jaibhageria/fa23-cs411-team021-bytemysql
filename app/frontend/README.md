@@ -1,38 +1,70 @@
-# Frontend setup steps
+# Getting Started with Create React App
 
-## Dependencies setup
-Run the following commands in order in beat-metrics-app:
-```bash
-npm i
-npm run build
-rm -r gae/build
-mv build/ gae/
-```
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Run app on Google App Engine (GAE)
-- Install the `gcloud` CLI tool compatible for your system
-- Run the below command to set the project ID:
-  ```bash
-  gcloud config set project cs411-bytemysql
-  ```
-  You may be prompted to sign-in before the above command can run
-- To deploy:
-  ```bash
-  cd beat-metrics-app/gae
-  gcloud app deploy
-  ```
+## Available Scripts
 
-That's it!
-You can use `gcloud app browse` to hit the URL of the service deployed. This will re-direct to your default browser.
-Further, you may find the following list of commands useful:
-```bash
-# List the services deployed on GAE
-gcloud app services list
-# List the versions of the services deployed on GAE and their current status
-gcloud app versions list
-# Stop all services
-gcloud app services stop
-# Stop a particular service version
-gcloud app versions stop <version id from versions list> # example: gcloud app versions stop 20231127t033136
-```
-For more operations navigate to the app engine dashboard on your GCP project
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

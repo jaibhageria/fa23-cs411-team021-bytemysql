@@ -1,0 +1,28 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button {
+  background-color: #f0f0f0; /* Light grey background */
+  border: none;
+  padding: 10px 15px;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc; /* Darker grey to indicate the button is disabled */
+  cursor: default;
+}
+
+.dot {
+  padding: 0 5px;
+  font-size: 24px; /* Adjust as needed */
+  cursor: default;
+}
+
+.active {
+  color: blue; /* Active dot color */
+}

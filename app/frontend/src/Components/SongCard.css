@@ -1,0 +1,65 @@
+* {
+  background-color: #e4f0f4;
+}
+
+.song-card {
+  width: 400px;
+  height: 600px;
+  padding: 20px;
+  margin: 20px auto;
+  margin-top: 55px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  text-align: center;
+  transition: transform 0.5s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.song-details {
+  background-color: #ffffff;
+  display: flex;
+  justify-content: space-around; /* Space out genre and mood evenly */
+  margin-top: auto; /* Pushes to the bottom of the card */
+}
+.genre,
+.mood {
+  background-color: #ffffff;
+  padding: 20px 20px;
+  border-radius: 5px;
+  color: white; /* Adjust text color as needed */
+}
+
+.genre {
+  background-color: #ff00c8; /* Set background color for genre */
+}
+
+.mood {
+  background-color: #28a745; /* Set background color for mood */
+}
+
+.song-card:hover {
+  transform: scale(1.05);
+}
+
+.song-card img {
+  width: 100%; /* Image takes full width of the card */
+  max-height: 400px; /* Set maximum height as needed */
+  object-fit: cover; /* This will cover the area, may crop the image */
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  background-color: #ffffff;
+  margin-bottom: 25px;
+}
+
+song-card h2,
+.song-card p {
+  word-wrap: break-word; /* This ensures text breaks to prevent overflow */
+  margin: 10px 0; /* Adjust margin as needed */
+  background-color: #ffffff;
+}

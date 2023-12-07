@@ -1,0 +1,33 @@
+.profile-page {
+  text-align: center;
+  padding: 20px;
+}
+
+.username-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%; /* Makes it a circle */
+  background-color: #add8e6; /* Light blue background */
+  color: white;
+  font-size: 2em;
+  line-height: 100px; /* Aligns text vertically */
+  margin: 0 auto; /* Centers the circle */
+  margin-bottom: 20px; /* Space below the circle */
+}
+
+.user-details {
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}

@@ -1,0 +1,87 @@
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@500&display=swap");
+
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-family: "Raleway", sans-serif;
+}
+
+.genre-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin-top: 40px;
+}
+
+.genre-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.genre-circle {
+  width: 150px; /* Increase the width for larger circles */
+  height: 150px; /* Increase the height for larger circles */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  margin: 25px;
+  margin-left: 100px;
+  margin-right: 45px; /* Increase margin for more spacing */
+  text-align: center;
+}
+
+.genres {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.choose {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 40px;
+  text-align: center;
+}
+
+.choose h3 {
+  font-size: 45px;
+  color: var(--mainColor);
+}
+
+.choose h4 {
+  font-size: 20px;
+  font-weight: 400;
+  color: black;
+  text-align: center;
+  margin-bottom: 55px;
+}
+
+/* genreselection.css */
+.selected {
+  border: 2px solid #370505; /* White border for selected genre */
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7); /* Optional: add a glow effect */
+}
+
+.buttons {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  margin-top: 80px;
+}
+
+.buttons button {
+  margin: 45px;
+  background-color: var(--mainColor);
+  color: white;
+  padding: 20px 40px;
+  border-radius: 5px;
+  font-size: large;
+}
